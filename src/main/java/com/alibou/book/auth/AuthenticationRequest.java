@@ -1,26 +1,17 @@
 package com.alibou.book.auth;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.*;
-
-import java.time.LocalDate;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class RegistrationRequest {
-    @NotEmpty(message = "Firstname is mandatory")
-    @NotBlank(message = "Firstname is mandatory")
-    private String firstname;
-    @NotEmpty(message = "lastname is mandatory")
-    @NotBlank(message = "lastname is mandatory")
-    private String lastname;
+public class AuthenticationRequest {
     @Email(message = "Email es not formatted")
     @NotEmpty(message = "email is mandatory")
     @NotBlank(message = "email is mandatory")

@@ -1,12 +1,17 @@
 package com.alibou.book.auth;
 
 import com.alibou.book.email.EmailService;
+import com.alibou.book.email.EmailTemplateName;
 import com.alibou.book.role.RoleRepository;
 import com.alibou.book.user.Token;
 import com.alibou.book.user.TokenRepository;
 import com.alibou.book.user.User;
 import com.alibou.book.user.UserRepository;
+import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +32,10 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
 
     private final EmailService emailService;
+    @Value("${application.mailing.frontend.activation-url}")
+    private String activationUrl;
 
-    public void register(RegistrationRequest request) {
+    public void register(RegistrationRequest request) throws MessagingException {
         var userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new IllegalArgumentException("ROLE USER was not initialized"));
         var user = User.builder()
@@ -44,12 +51,16 @@ public class AuthenticationService {
         sendValidationEmail(user);
     }
 
-    private void sendValidationEmail(User user) {
+    private void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
 
         emailService.sendEmail(
                 user.getEmail(),
                 user.fullName(),
+                EmailTemplateName.ACTIVATE_ACCOUNT,
+                activationUrl,
+                newToken,
+                "Account activation"
         );
 
     }
@@ -75,5 +86,8 @@ public class AuthenticationService {
             codeBuilder.append(character.charAt(randomIndex));
         }
         return codeBuilder.toString();
+    }
+
+    public @Nullable AuthenticationRespone authenticate(@Valid AuthenticationRequest request) {
     }
 }
